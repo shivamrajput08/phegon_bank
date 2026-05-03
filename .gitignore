@@ -23,6 +23,8 @@ target/
 .idea/
 HELP.md
 target/
+uploads/
+
 
 ### NetBeans ###
 /nbproject/private/

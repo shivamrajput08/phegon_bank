@@ -1,9 +1,7 @@
 package com.phegon.phegonbank.notification.services;
 
 import com.phegon.phegonbank.auth_users.entity.User;
-import com.phegon.phegonbank.enums.NotificationType;
 import com.phegon.phegonbank.notification.dtos.NotificationDTO;
-import com.phegon.phegonbank.notification.entity.Notification;
 import com.phegon.phegonbank.notification.repo.NotificationRepo;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;

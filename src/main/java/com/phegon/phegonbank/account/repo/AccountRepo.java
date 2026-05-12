@@ -2,7 +2,6 @@ package com.phegon.phegonbank.account.repo;
 
 import com.phegon.phegonbank.account.entity.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
-import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
 import java.util.List;
 import java.util.Optional;

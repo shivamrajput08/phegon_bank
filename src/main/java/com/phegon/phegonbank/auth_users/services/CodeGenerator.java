@@ -1,6 +1,5 @@
 package com.phegon.phegonbank.auth_users.services;
 
-import com.phegon.phegonbank.auth_users.entity.PasswordResetCode;
 import com.phegon.phegonbank.auth_users.repo.PasswordResetCodeRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

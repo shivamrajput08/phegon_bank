@@ -7,7 +7,6 @@ import com.phegon.phegonbank.auth_users.entity.User;
 import com.phegon.phegonbank.auth_users.services.UserService;
 import com.phegon.phegonbank.enums.TransactionStatus;
 import com.phegon.phegonbank.enums.TransactionTypes;
-import com.phegon.phegonbank.enums.TransactionTypes;
 import com.phegon.phegonbank.exceptions.BadRequestException;
 import com.phegon.phegonbank.exceptions.InsufficientBalanceException;
 import com.phegon.phegonbank.exceptions.InvalidTransactionException;

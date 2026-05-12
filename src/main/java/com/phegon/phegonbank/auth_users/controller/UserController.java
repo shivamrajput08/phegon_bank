@@ -6,7 +6,6 @@ import com.phegon.phegonbank.auth_users.services.UserService;
 import com.phegon.phegonbank.res.Response;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

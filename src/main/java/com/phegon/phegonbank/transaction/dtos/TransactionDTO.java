@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.phegon.phegonbank.account.dtos.AccountDTO;
-
 import com.phegon.phegonbank.enums.TransactionStatus;
 import com.phegon.phegonbank.enums.TransactionTypes;
 import lombok.AllArgsConstructor;

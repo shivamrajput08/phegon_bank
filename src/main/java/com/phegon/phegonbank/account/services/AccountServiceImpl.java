@@ -16,26 +16,30 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 @Slf4j
-public class AccountServiceImpl implements AccountService{
+public class AccountServiceImpl implements AccountService {
+
     private final AccountRepo accountRepo;
     private final UserService userService;
     private final ModelMapper modelMapper;
 
     private final Random random = new Random();
 
+
     @Override
     public Account createAccount(AccountType accountType, User user) {
-        log.info("Inside createAccount()");
+        log.info("Insdie createAccount()");
+
         String accountNumber = generateAccountNumber();
 
         Account account = Account.builder()
@@ -53,6 +57,7 @@ public class AccountServiceImpl implements AccountService{
 
     @Override
     public Response<List<AccountDTO>> getMyAccounts() {
+
         User user = userService.getCurrentLoggedInUser();
 
         List<AccountDTO> accounts = accountRepo.findByUserId(user.getId())
@@ -67,17 +72,19 @@ public class AccountServiceImpl implements AccountService{
                 .build();
     }
 
+
     @Override
     public Response<?> closeAccount(String accountNumber) {
+
         User user = userService.getCurrentLoggedInUser();
         Account account = accountRepo.findByAccountNumber(accountNumber)
-                .orElseThrow(() ->new NotFoundException("Account Not Found"));
+                .orElseThrow(() -> new NotFoundException("Account Not Found"));
 
-        if (!user.getAccounts().contains(account)){
+        if (!user.getAccounts().contains(account)) {
             throw new NotFoundException("Account doesn't belong to you");
         }
 
-        if(account.getBalance().compareTo(BigDecimal.ZERO) > 0){
+        if (account.getBalance().compareTo(BigDecimal.ZERO) > 0) {
             throw new BadRequestException("Account balance must be zero before closing");
         }
         account.setStatus(AccountStatus.CLOSED);
@@ -86,19 +93,34 @@ public class AccountServiceImpl implements AccountService{
 
         return Response.builder()
                 .statusCode(HttpStatus.OK.value())
-                .message("Account closed successfuly")
+                .message("Account closed successfully")
                 .build();
+
     }
 
-    private String generateAccountNumber(){
+
+    private String generateAccountNumber() {
         String accountNumber;
-        do{
-            //Generate a random 8-digit number(from 10000000 to 90000000)
+        do {
+            // Generate a random 8-digit number (from 10,000,000 to 99,999,999)
+            // and combine it with the "66" prefix.
             accountNumber = "66" + (random.nextInt(90000000) + 10000000);
 
-        }while (accountRepo.findByAccountNumber(accountNumber).isPresent());
+        } while (accountRepo.findByAccountNumber(accountNumber).isPresent());
 
-        log.info("account number  generated {}" , accountRepo);
+
+        log.info("account number generated {}", accountRepo);
         return accountNumber;
     }
+
+
 }
+
+
+
+
+
+
+
+
+

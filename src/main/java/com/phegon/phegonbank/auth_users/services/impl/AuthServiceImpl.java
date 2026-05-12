@@ -92,7 +92,7 @@ public class AuthServiceImpl implements AuthService {
 
         NotificationDTO notificationDTO = NotificationDTO.builder()
                 .recipient(savedUser.getEmail())
-                .subject("Welcome to Phegon Bank! 🥳🎉")
+                .subject("Welcome to SecureFinance System! 🥳🎉")
                 .templateName("welcome")
                 .templateVariables(vars)
                 .build();

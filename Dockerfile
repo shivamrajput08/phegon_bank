@@ -18,7 +18,8 @@ RUN mvn dependency:go-offline -B
 COPY src ./src
 
 # Package the Spring Boot application into a JAR file
-RUN mvn clean package -Dmaven.test.skip=true
+#RUN #mvn clean package -Dmaven.test.skip=true
+RUN mvn clean package spring-boot:repackage -DskipTests
 
 
 #Stage 2 is to build a production ready image and run

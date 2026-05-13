@@ -103,7 +103,7 @@ public class AuthServiceImpl implements AuthService {
         accountVars.put("name", savedUser.getFirstName());
         accountVars.put("accountNumber", savedAccount.getAccountNumber());
         accountVars.put("accountType", AccountType.SAVINGS.name());
-        accountVars.put("currency", Currency.USD);
+        accountVars.put("currency", Currency.INR);
 
         NotificationDTO accountCreatedEmail = NotificationDTO.builder()
                 .recipient(savedUser.getEmail())

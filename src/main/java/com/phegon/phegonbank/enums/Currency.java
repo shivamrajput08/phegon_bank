@@ -1,5 +1,5 @@
 package com.phegon.phegonbank.enums;
 
 public enum Currency {
-    USD,EUR,NGN
+    INR, USD, EUR, NGN
 }

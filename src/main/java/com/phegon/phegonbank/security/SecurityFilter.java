@@ -36,8 +36,11 @@ public class SecurityFilter {
                 .exceptionHandling(ex ->
                         ex.accessDeniedHandler(customAccessDenialHandler)
                                 .authenticationEntryPoint(customAuthenticationEntryPoint))
+//                .authorizeHttpRequests(req -> req
+//                        .requestMatchers("/api/auth/**").permitAll()
+//                        .anyRequest().authenticated())
                 .authorizeHttpRequests(req -> req
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/profile-picture/**").permitAll() // 👈 Yahan add kar diya
                         .anyRequest().authenticated())
                 .sessionManagement(mag ->
                         mag.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

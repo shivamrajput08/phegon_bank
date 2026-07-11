@@ -48,8 +48,8 @@ public class UserServiceImpl implements UserService {
 
 
     // this is for frontend
-    private final String uploadDir = "C:\\phegonDev\\phegon-bank-react/public/profile-picture/";
-
+//    private final String uploadDir = "C:\\phegonDev\\phegon-bank-react/public/profile-picture/";
+    private final String uploadDir = "uploads/profile-pictures/";
     @Override
     public User getCurrentLoggedInUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

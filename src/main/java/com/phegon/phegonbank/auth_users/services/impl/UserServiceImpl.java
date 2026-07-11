@@ -5,7 +5,7 @@ import com.phegon.phegonbank.auth_users.dtos.UserDTO;
 import com.phegon.phegonbank.auth_users.entity.User;
 import com.phegon.phegonbank.auth_users.repo.UserRepo;
 import com.phegon.phegonbank.auth_users.services.UserService;
-import com.phegon.phegonbank.aws.S3Service;
+
 import com.phegon.phegonbank.exceptions.BadRequestException;
 import com.phegon.phegonbank.exceptions.NotFoundException;
 import com.phegon.phegonbank.notification.dtos.NotificationDTO;
@@ -41,40 +41,78 @@ public class UserServiceImpl implements UserService {
     private final NotificationService notificationService;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
-    private final S3Service s3Service;
+//
 
- // this is for backend
+    // this is for backend
 //    private final String uploadDir = "uploads/profile-pictures/";
 
 
     // this is for frontend
     private final String uploadDir = "C:\\phegonDev\\phegon-bank-react/public/profile-picture/";
+
     @Override
     public User getCurrentLoggedInUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication ==  null){
-            throw  new NotFoundException("user is not authenticated");
+        if (authentication == null) {
+            throw new NotFoundException("user is not authenticated");
         }
         String email = authentication.getName();
         return userRepo.findByEmail(email).orElseThrow(() -> new NotFoundException("User not found"));
     }
 
-    @Override
-    public Response<UserDTO> getMyProfile() {
-        User user = getCurrentLoggedInUser();
-        UserDTO userDTO = modelMapper.map(user,UserDTO.class);
+//    @Override
+//    public Response<UserDTO> getMyProfile() {
+//        User user = getCurrentLoggedInUser();
+//        UserDTO userDTO = modelMapper.map(user, UserDTO.class);
+//
+//        return Response.<UserDTO>builder()
+//                .statusCode(HttpStatus.OK.value())
+//                .message("User retrieved")
+//                .data(userDTO)
+//                .build();
+//    }
+@Override
+public Response<UserDTO> getMyProfile() {
+    User user = getCurrentLoggedInUser();
 
-        return Response.<UserDTO>builder()
-                .statusCode(HttpStatus.OK.value())
-                .message("User retrieved")
-                .data(userDTO)
-                .build();
+    // Agar user entity me accounts list hai, toh use yahan load karlein
+    if (user.getAccounts() != null) {
+        org.hibernate.Hibernate.initialize(user.getAccounts());
     }
+
+    // Agar error me koi aur collection ka naam bhi tha (jaise transactions), toh use bhi initialize karlein:
+    // if (user.getTransactions() != null) { org.hibernate.Hibernate.initialize(user.getTransactions()); }
+
+    UserDTO userDTO = modelMapper.map(user, UserDTO.class);
+
+    return Response.<UserDTO>builder()
+            .statusCode(HttpStatus.OK.value())
+            .message("User retrieved")
+            .data(userDTO)
+            .build();
+}
+//    @Override
+//    public Response<Page<UserDTO>> getAllUsers(int page, int size) {
+//        Page<User> users = userRepo.findAll(PageRequest.of(page, size));
+//        Page<UserDTO> userDTOS = users.map(user -> modelMapper.map(user, UserDTO.class));
+//
+//        return Response.<Page<UserDTO>>builder()
+//                .statusCode(HttpStatus.OK.value())
+//                .message("Users retrived")
+//                .data(userDTOS)
+//                .build();
+//    }
 
     @Override
     public Response<Page<UserDTO>> getAllUsers(int page, int size) {
         Page<User> users = userRepo.findAll(PageRequest.of(page, size));
-        Page<UserDTO> userDTOS = users.map(user -> modelMapper.map(user,UserDTO.class));
+
+        Page<UserDTO> userDTOS = users.map(user -> {
+            if (user.getAccounts() != null) {
+                org.hibernate.Hibernate.initialize(user.getAccounts());
+            }
+            return modelMapper.map(user, UserDTO.class);
+        });
 
         return Response.<Page<UserDTO>>builder()
                 .statusCode(HttpStatus.OK.value())
@@ -90,11 +128,11 @@ public class UserServiceImpl implements UserService {
         String newPassword = updatePasswordRequest.getNewPassword();
         String oldPassword = updatePasswordRequest.getOldPassword();
 
-        if (oldPassword == null || newPassword == null){
+        if (oldPassword == null || newPassword == null) {
             throw new BadRequestException("Old and new Password Required");
 
         }
-        if(!passwordEncoder.matches(oldPassword,user.getPassword())){
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
             throw new BadRequestException("Old Password not Correct");
         }
         user.setPassword(passwordEncoder.encode(newPassword));
@@ -103,8 +141,8 @@ public class UserServiceImpl implements UserService {
         userRepo.save(user);
 
 
-        Map<String , Object> templateVariables = new HashMap<>();
-        templateVariables.put("name" , user.getFirstName());
+        Map<String, Object> templateVariables = new HashMap<>();
+        templateVariables.put("name", user.getFirstName());
 
         NotificationDTO notificationDTO = NotificationDTO.builder()
                 .recipient(user.getEmail())
@@ -113,7 +151,7 @@ public class UserServiceImpl implements UserService {
                 .templateVariables(templateVariables)
                 .build();
 
-        notificationService.sendEmail(notificationDTO , user);
+        notificationService.sendEmail(notificationDTO, user);
 
         return Response.builder()
                 .statusCode(HttpStatus.OK.value())
@@ -127,12 +165,12 @@ public class UserServiceImpl implements UserService {
 
         try {
             Path uploadPath = Paths.get(uploadDir);
-            if (!Files.exists(uploadPath)){
+            if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
-            if(user.getProfilePictureUrl() != null && !user.getProfilePictureUrl().isEmpty()){
+            if (user.getProfilePictureUrl() != null && !user.getProfilePictureUrl().isEmpty()) {
                 Path oldFile = Paths.get(user.getProfilePictureUrl());
-                if (Files.exists(oldFile)){
+                if (Files.exists(oldFile)) {
                     Files.delete(oldFile);
                 }
             }
@@ -165,36 +203,10 @@ public class UserServiceImpl implements UserService {
                     .message("Profile picture uploaded successfully")
                     .data(fileUrl)
                     .build();
-        } catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e.getMessage());
         }
     }
-    @Override
-    public Response<?> uploadProfilePictureToS3(MultipartFile file){
-        log.info("Inside uploadProfilePictureToS3()");
-        User user = getCurrentLoggedInUser();
 
-        try {
 
-            if(user.getProfilePictureUrl() != null && !user.getProfilePictureUrl().isEmpty()){
-                s3Service.deleteFile(user.getProfilePictureUrl());
-            }
-            String s3Url = s3Service.uploadFile(file, "profile-pictures");
-
-            log.info("profile url is: {}", s3Url );
-
-            user.setProfilePictureUrl(s3Url);
-            userRepo.save(user);
-
-            return Response.builder()
-                    .statusCode(HttpStatus.OK.value())
-                    .message("Profile picture uploaded successfully.")
-                    .data(s3Url)
-                    .build();
-
-        }catch (IOException e){
-
-            throw new RuntimeException(e.getMessage());
-        }
-    }
 }
